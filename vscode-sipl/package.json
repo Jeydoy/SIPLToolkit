@@ -1,0 +1,40 @@
+{
+  "name": "sipl-language-support",
+  "displayName": "SIPL Language Support",
+  "description": "Language Server client for SIPL (diagnostics, completion, hover, symbols, semantic tokens)",
+  "version": "0.1.0",
+  "publisher": "knu-sipl",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:sipl"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "sipl",
+        "aliases": ["SIPL", "sipl"],
+        "extensions": [".sipl"],
+        "configuration": "./language-configuration.json"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "package": "npm run compile && vsce package"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.4.0"
+  }
+}

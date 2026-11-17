@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Sipl.Cli/Sipl.Cli.csproj" />
+  <Project Path="Sipl.Core/Sipl.Core.csproj" />
+  <Project Path="Sipl.Interpreter/Sipl.Interpreter.csproj" />
+  <Project Path="Sipl.LanguageServer/Sipl.LanguageServer.csproj" />
+  <Project Path="Sipl.Parser/Sipl.Parser.csproj" />
+  <Project Path="Sipl.Tests/Sipl.Tests.csproj" />
+</Solution>
