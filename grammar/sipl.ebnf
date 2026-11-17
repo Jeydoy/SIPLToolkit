@@ -1,0 +1,34 @@
+(* Формальна граматика мови SIPL (Simple Imperative Programming Language) *)
+
+Program       = Statement ;
+
+Statement     = CompoundStmt
+              | AssignStmt
+              | IfStmt
+              | WhileStmt
+              | SkipStmt ;
+
+CompoundStmt  = "begin" , Statement , { ";" , Statement } , "end" ;
+AssignStmt    = Identifier , ":=" , ArithExpr ;
+IfStmt        = "if" , BoolExpr , "then" , Statement , "else" , Statement ;
+WhileStmt     = "while" , BoolExpr , "do" , Statement ;
+SkipStmt      = "skip" ;
+
+BoolExpr      = BoolTerm , { "or" , BoolTerm } ;
+BoolTerm      = "not" , BoolTerm
+              | "(" , BoolExpr , ")"
+              | ArithExpr , RelOp , ArithExpr ;
+
+RelOp         = "=" | ">" | ">=" | "<" | "<=" ;
+
+ArithExpr     = Term , { ( "+" | "-" ) , Term } ;
+Term          = Factor , { ( "*" | "div" | "mod" ) , Factor } ;
+Factor        = Number
+              | Identifier
+              | "(" , ArithExpr , ")" ;
+
+Identifier    = Letter , { Letter | Digit | "_" } ;
+Number        = Digit , { Digit } ;
+
+Letter        = "a".."z" | "A".."Z" | "_" ;
+Digit         = "0".."9" ;
