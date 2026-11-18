@@ -69,9 +69,18 @@ class Program
 
             interpreter.Run(analysis.Ast!);
 
-            if (command == "trace" && jsonMode)
+            if (command == "trace")
             {
-                Console.WriteLine(JsonSerializer.Serialize(new { ok = true, memory = interpreter.Memory, trace = traces }, jsonOptions));
+               if (jsonMode)
+                {
+                    Console.WriteLine(JsonSerializer.Serialize(new { ok = true, memory = interpreter.Memory, trace = traces }, jsonOptions));
+                }
+                else
+                {
+                    Console.WriteLine("--- Фінальний стан пам'яті ---");
+                    foreach (var kvp in interpreter.Memory)
+                        Console.WriteLine($"{kvp.Key} = {kvp.Value}");
+                }
                 return 0;
             }
 
