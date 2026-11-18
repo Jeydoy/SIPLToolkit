@@ -165,13 +165,20 @@ public void Interpreter_UninitializedVariable_ThrowsRuntimeError()
     }
 
     // --- IDE-04: Протокольний інтеграційний тест LSP (JSON-RPC через stdin/stdout) ---
-    [Fact]
+  [Fact]
     public async Task LanguageServer_InitializeAndDiagnostics_RespondsOverStdio()
     {
-        var serverProj = Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory, "..", "..", "..", "..", "Sipl.LanguageServer", "Sipl.LanguageServer.csproj"));
+        var config = AppContext.BaseDirectory.Contains("Release", StringComparison.OrdinalIgnoreCase)
+            ? "Release"
+            : "Debug";
 
-        var psi = new ProcessStartInfo("dotnet", $"run --project \"{serverProj}\" --no-build")
+        var serverDll = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory, "..", "..", "..", "..",
+            "Sipl.LanguageServer", "bin", config, "net10.0", "Sipl.LanguageServer.dll"));
+
+        Assert.True(File.Exists(serverDll), $"Не знайдено зібраний LSP-сервер: {serverDll}");
+
+        var psi = new ProcessStartInfo("dotnet", $"\"{serverDll}\"")
         {
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
@@ -181,25 +188,33 @@ public void Interpreter_UninitializedVariable_ThrowsRuntimeError()
 
         using var proc = Process.Start(psi)!;
 
-        static async Task SendRpcAsync(StreamWriter writer, object payload)
+        try
         {
-            string json = JsonSerializer.Serialize(payload);
-            await writer.WriteAsync($"Content-Length: {System.Text.Encoding.UTF8.GetByteCount(json)}\r\n\r\n{json}");
-            await writer.FlushAsync();
+            var payload = new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "initialize",
+                @params = new { processId = Environment.ProcessId, rootUri = (string?)null, capabilities = new { } }
+            };
+
+            byte[] bodyBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload));
+            byte[] headerBytes = System.Text.Encoding.ASCII.GetBytes($"Content-Length: {bodyBytes.Length}\r\n\r\n");
+
+            await proc.StandardInput.BaseStream.WriteAsync(headerBytes);
+            await proc.StandardInput.BaseStream.WriteAsync(bodyBytes);
+            await proc.StandardInput.BaseStream.FlushAsync();
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            string? header = await proc.StandardOutput.ReadLineAsync(cts.Token);
+
+            Assert.NotNull(header);
+            Assert.StartsWith("Content-Length:", header);
         }
-
-        await SendRpcAsync(proc.StandardInput, new
+        finally
         {
-            jsonrpc = "2.0",
-            id = 1,
-            method = "initialize",
-            @params = new { processId = Environment.ProcessId, rootUri = (string?)null, capabilities = new { } }
-        });
-
-        string? header = await proc.StandardOutput.ReadLineAsync();
-        Assert.NotNull(header);
-        Assert.StartsWith("Content-Length:", header);
-
-        proc.Kill(entireProcessTree: true);
+            if (!proc.HasExited)
+                proc.Kill(entireProcessTree: true);
+        }
     }
 }
