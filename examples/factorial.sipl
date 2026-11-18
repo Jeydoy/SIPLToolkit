@@ -1,0 +1,10 @@
+begin
+  n := 6;
+  fact := 1;
+  i := 1;
+  while n >= i do
+  begin
+    fact := fact * i;
+    i := i + 1
+  end
+end

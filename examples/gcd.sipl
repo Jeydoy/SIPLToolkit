@@ -1,0 +1,11 @@
+begin
+  a := 48;
+  b := 18;
+  while b > 0 do
+  begin
+    temp := b;
+    b := a mod b;
+    a := temp
+  end;
+  gcd := a
+end

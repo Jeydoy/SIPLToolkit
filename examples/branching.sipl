@@ -1,0 +1,10 @@
+begin
+  x := 27;
+  y := 4;
+  quot := x div y;
+  rem := x mod y;
+  if rem >= 2 then
+    result := quot + 1
+  else
+    result := quot
+end

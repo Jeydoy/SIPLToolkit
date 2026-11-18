@@ -1,0 +1,11 @@
+begin
+  x := 2;
+  y := 10;
+  z := 1;
+  k := y;
+  while k > 0 do
+  begin
+    z := z * x;
+    k := k - 1
+  end
+end
